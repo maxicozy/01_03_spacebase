@@ -24,7 +24,7 @@
 <body>
   <pre id="console">
   	<!-- Hier landet später der Output aus Javascript -->
-  </pre>	
+  </pre>
 
   <script>
     let renderStr = "";
@@ -34,7 +34,7 @@
     let spaceshipPos = Math.round(cols / 2);
     let currentBullets = [];
     let invaders = [];
-    let obstacles = [];	
+    let obstacles = [];
 
 	/*
 	*	SPIELELOGIK
@@ -103,7 +103,7 @@
 		let str = ""
 		for (var i = 0; i < rows; i++) {
 			for (var j = 0; j < cols; j++) {
-				if(i == cnt + Math.round(Math.random()*20)) str += "`"
+				if(i == cnt + (Math.round(Math.random()*20))*3) str += "`"
 				else str += " "
 			}
 			str += "\n"
@@ -115,9 +115,9 @@
 
 	function renderSpaceship(posX, posY) {
 		//Spaceship-Array
-		let spaceship = ["   #   ",
-						 "#######",
-						 "#######"]
+		let spaceship = ["   ▴   ",
+						 "◢◼◼◼◼◼◣",
+						 "◼◼◼◼◼◼◼"]
 
 		for (var i = 0; i < spaceship.length; i++) {			
 			//Zeilenweise in String schreiben
@@ -134,6 +134,19 @@
 		});		
 	}
 
+	function generateInvader (width, height, xPos, yPos) {
+	  for (let x = 0; x < width; x++) {
+	    for (let y = 0; y < height; y++) {
+	      let randomNumber = Math.random();
+	      if (randomNumber >= 0.5) {
+					let Invaders = [, , , ('◼')  + xPos, y + yPos];
+					renderStr = setCharsAt(renderStr, xyToStringPos((2 * width - x) + xPos, y + yPos), ('◼'));
+					renderStr = setCharsAt(renderStr, xyToStringPos(x + xPos, y + yPos), ('◼'));
+	      }
+	    }
+	  } 
+	}
+
 	function renderBullets() {
 		//TODO: Prüfen ob eine Kugel einen Invader oder ein Obstacle trifft, wenn ja Aktion auslösen
 
@@ -148,7 +161,7 @@
 
 	function renderInvaders(invader, pos) {
 		//TODO Invaders rendern
-
+		generateInvader(8, 5, Math.random() * 124, 8);
 	}
 
 
