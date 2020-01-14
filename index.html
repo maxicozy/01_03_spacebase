@@ -25,7 +25,43 @@
   </pre>
 
   <script>
-		const Invader = require('/invaderClass.js');
+		class Invader {
+			constructor(appearance, id) {
+    		this.appearance = appearance;
+   			this.id = id;
+  		}
+
+  		shootLaser() {
+  		  console.log("Invader " +this.id+" Laser shot")
+  		}
+		
+  		explode() {
+  		  console.log("Invader "+this.id+" exploded")
+  		}
+		
+  		isHitByBullet(bulletX, bulletY) {
+  		  //prüfen ob der Bullet den Invader trifft
+  		}
+		
+  		static generateInvader(width, height) {
+  		    let currentInvader = [];
+  		    for (let y = 0; y < height; y++) {
+  		      currentInvader[y] = " ".repeat(width*2+1);
+  		      for (let x = 0; x < width; x++) {
+  		        let randomNumber = Math.random();
+  		        if (randomNumber >= 0.5) {
+  		          currentInvader[y] = (setCharsAt(currentInvader[y], x,'▧'));
+  		          currentInvader[y] = (setCharsAt(currentInvader[y], 2 * width - x,'▨'));
+  		        }
+  		      }
+  		    } 
+  		    return currentInvader; 
+				
+  		}
+		}		
+
+		let startPosX = 0;
+		let startPosY = 0;
 		let invaders = [];
 		const gameSpeed = 2;
 		const invaderWidth = 8;
@@ -41,6 +77,8 @@
 		let xoffset = 1;
 		let yoffset = 1;
 		let invaderDirection = 1;
+		let invaderRow = [];
+		let rowId = 0;
 
 	/*
 	*	SPIELELOGIK
@@ -52,8 +90,9 @@
 		// 		invaders[i].Appearance = invaderRowSegment
 		// 	}
 		// }
+		invaders.push(generateInvaderRow(rowId));
 
-		let inv = new Invader(1,1,0,0,Invader.generateInvader(invaderWidth, invaderHeight),1)
+		console.log(invaders)
 
 		//TODO Punktestände
 		obstacles.push({x: Math.round(cols/2)-5, 
@@ -156,23 +195,8 @@
 		})			
 	}
 
-	function generateInvader (width, height) {
-		let currentInvader = [];
-	  for (let y = 0; y < height; y++) {
-			currentInvader[y] = " ".repeat(width*2+1);
-	    for (let x = 0; x < width; x++) {
-	      let randomNumber = Math.random();
-	      if (randomNumber >= 0.5) {
-					currentInvader[y] = (setCharsAt(currentInvader[y], x,'▧'));
-					currentInvader[y] = (setCharsAt(currentInvader[y], 2 * width - x,'▨'));
-	      }
-	    }
-	  } 
-		return currentInvader; 
-	}
-
-	function renderInvaders(posX, posY, invaders) {
-		for (let j = 0; j < invaders.length; j++) {
+	function renderInvaders(invaders, rowId) {
+		for (let j = 0; j < invaders[rowId].length-2; j++) {
 			for (let i = 0; i < invaders[j].Appearance.length; i++) {
 				renderStr = setCharsAt(renderStr,xyToStringPos(posX, posY+i), invaders[j].Appearance[i]);		
 			}
@@ -180,20 +204,30 @@
 		}
 	}
 
+	function generateInvaderRow(rowId, startPosX, startPos) {
+		let newInvaderRow = [];
+		newInvaderRow.push(startPosX, startPosY);
+			for(let id = 0; id < 5; id++) {
+				let newInv = new Invader(Invader.generateInvader(invaderWidth, invaderHeight),id+(5*rowId));
+				newInvaderRow[id].push(newInv);
+			}
+		return newInvaderRow;
+	}
 
 	//Hauptrenderfunktion
 	function render() {
 		run++
 		if (run >= gameSpeed) {
 			run = 0;
-			if (xoffset == 0 || xoffset  ==((cols/5 - invaderWidth*2)- 1)) {
-				yoffset++;
-				invaderDirection = invaderDirection * (-1);
-				xoffset = xoffset + invaderDirection;
-			}
-			else {
+					if (xoffset == 0 || xoffset  ==((cols/5 - invaderWidth*2)- 1)) {
+						yoffset++;
+						wallchecker = 0
+						invaderDirection = invaderDirection * (-1);
+					}
+				else {
 					xoffset = xoffset + invaderDirection;
-			}
+					wallchecker = 0
+				}
 		}
 
 		//Render Background
