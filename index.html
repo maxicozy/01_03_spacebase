@@ -24,41 +24,9 @@
   	<!-- Hier landet später der Output aus Javascript -->
   </pre>
 
+	<script src="classes.js"></script>
   <script>
-		class Invader {
-			constructor(appearance, id) {
-    		this.appearance = appearance;
-   			this.id = id;
-  		}
-
-  		shootLaser() {
-  		  console.log("Invader " +this.id+" Laser shot")
-  		}
-		
-  		explode() {
-  		  console.log("Invader "+this.id+" exploded")
-  		}
-		
-  		isHitByBullet(bulletX, bulletY) {
-  		  //prüfen ob der Bullet den Invader trifft
-  		}
-		
-  		static generateInvader(width, height) {
-  		    let currentInvader = [];
-  		    for (let y = 0; y < height; y++) {
-  		      currentInvader[y] = " ".repeat(width*2+1);
-  		      for (let x = 0; x < width; x++) {
-  		        let randomNumber = Math.random();
-  		        if (randomNumber >= 0.5) {
-  		          currentInvader[y] = (setCharsAt(currentInvader[y], x,'▧'));
-  		          currentInvader[y] = (setCharsAt(currentInvader[y], 2 * width - x,'▨'));
-  		        }
-  		      }
-  		    } 
-  		    return currentInvader; 
-				
-  		}
-		}		
+	
 
 		let startPosX = 0;
 		let startPosY = 0;
@@ -90,16 +58,17 @@
 		// 		invaders[i].Appearance = invaderRowSegment
 		// 	}
 		// }
-		invaders.push(generateInvaderRow(rowId));
+		let newInvaderRow = new InvaderRow(startPosX, startPosY, invaderWidth, invaderHeight, InvaderRow.generateInvaderRow(invaderWidth, invaderHeight), rowId);
+		invaders.push(newInvaderRow);
 
-		console.log(invaders)
+		console.log(invaders);
 
 		//TODO Punktestände
 		obstacles.push({x: Math.round(cols/2)-5, 
 						y: rows-10, 
 						width: 10,
 						height:3,
-						char: "◩" })
+						char: "◩" });
 	}
 
 	function fireBullet() {
@@ -111,10 +80,6 @@
 	 *	HELFERFUNKTIONEN
 	 */
 	//Characters in String editieren
-	function 	setCharsAt(str,index,chr) {
-		if(index > str.length-1) return str;
-		return str.substr(0,index) + chr + str.substr(index+chr.length);
-	}
 
 	//X/Y-Wert in fortlaufende String-Position umwandeln
 	function xyToStringPos(posX, posY) {
@@ -150,10 +115,10 @@
 		let str = ""
 		for (var i = 0; i < rows; i++) {
 			for (var j = 0; j < cols; j++) {
-				if(i == cnt + (Math.round(Math.random()*30)) * 2) str += "`"
+				if(i == cnt + (Math.round(Math.random()*30)) * 2) str += "*"
 				else str += " "
 			}
-			str += "\n"
+			str += "\n";
 		}
 		cnt++;
 		if(cnt * 5 > rows * 0.2) cnt = 0;
@@ -169,7 +134,7 @@
 
 		for (var i = 0; i < spaceship.length; i++) {			
 			//Zeilenweise in String schreiben
-			renderStr = setCharsAt(renderStr,xyToStringPos(posX, posY+i),spaceship[i]);
+			renderStr = Helper.setCharsAt(renderStr,xyToStringPos(posX, posY+i),spaceship[i]);
 		}
 	}
 
@@ -177,7 +142,7 @@
 		obstacles.forEach((obstacle) => {
 			for (var i = 0; i < obstacle.height; i++) {			
 				//Zeilenweise in String schreiben
-				renderStr = setCharsAt(renderStr,xyToStringPos(obstacle.x, obstacle.y+i),obstacle.char.repeat(obstacle.width));
+				renderStr = Helper.setCharsAt(renderStr,xyToStringPos(obstacle.x, obstacle.y+i),obstacle.char.repeat(obstacle.width));
 			}
 		});
 	}
@@ -191,27 +156,17 @@
 		//Kugeln einen Schritt weiter bewegen, dann rendern
 		currentBullets.forEach((bullet) => {
 			bullet.y -= 1;
-			renderStr = setCharsAt(renderStr,xyToStringPos(bullet.x, bullet.y),"|");
+			renderStr = Helper.setCharsAt(renderStr,xyToStringPos(bullet.x, bullet.y),"|");
 		})			
 	}
 
-	function renderInvaders(invaders, rowId) {
-		for (let j = 0; j < invaders[rowId].length-2; j++) {
-			for (let i = 0; i < invaders[j].Appearance.length; i++) {
-				renderStr = setCharsAt(renderStr,xyToStringPos(posX, posY+i), invaders[j].Appearance[i]);		
+	function renderInvaders(posX, posY, invaders) {
+		for (let j = 0; j < invaders[rowId].invaders.length; j++) {
+			for (let i = 0; i < invaders[rowId].invaders[j].appearance.length; i++) {
+				renderStr = Helper.setCharsAt(renderStr,xyToStringPos(invaders[rowId].invaders[j].id + posX, posY+i), invaders[rowId].invaders[j].appearance[i]);		
 			}
-			posX = posX + (cols/5 - invaderWidth*2) + invaderWidth*2;
+			posX =  posX + (cols/5 - invaderWidth*2) + invaderWidth + 1;
 		}
-	}
-
-	function generateInvaderRow(rowId, startPosX, startPos) {
-		let newInvaderRow = [];
-		newInvaderRow.push(startPosX, startPosY);
-			for(let id = 0; id < 5; id++) {
-				let newInv = new Invader(Invader.generateInvader(invaderWidth, invaderHeight),id+(5*rowId));
-				newInvaderRow[id].push(newInv);
-			}
-		return newInvaderRow;
 	}
 
 	//Hauptrenderfunktion
@@ -219,14 +174,13 @@
 		run++
 		if (run >= gameSpeed) {
 			run = 0;
-					if (xoffset == 0 || xoffset  ==((cols/5 - invaderWidth*2)- 1)) {
+					if (xoffset == 0 || xoffset  ==  (cols/5 - invaderWidth*2) + 23) {
 						yoffset++;
-						wallchecker = 0
 						invaderDirection = invaderDirection * (-1);
+						xoffset = xoffset + invaderDirection;
 					}
 				else {
 					xoffset = xoffset + invaderDirection;
-					wallchecker = 0
 				}
 		}
 
@@ -239,7 +193,7 @@
 		renderSpaceship(spaceshipPos, rows-4, renderStr);
 
 		//Render Invaders
-		renderInvaders(xoffset, yoffset, invaders, renderStr);
+		renderInvaders(startPosX + xoffset, startPosY + yoffset, invaders, renderStr);
 
 		//Render Bullets
 		renderBullets(renderStr);
