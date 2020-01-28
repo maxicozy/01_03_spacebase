@@ -68,7 +68,7 @@
 						y: rows-10, 
 						width: 10,
 						height:3,
-						char: "◩" });
+						char: "=" });
 	}
 
 	/*
@@ -122,10 +122,10 @@
 
 	function renderSpaceship(posX, posY) {
 		//Spaceship-Array
-		let spaceship = ["   ◊   ",
-						 				 " ◞ ◌ ◟ ",
-						 				 "◿▨▨▩▧▧◺",
-						 				 "▨▨▨◍▧▧▧"]
+		let spaceship = ["   !  ",
+						 				 " ~ ° ~",
+						 				 "/:::::\\",
+						 				 "|:::::|"]
 
 		for (var i = 0; i < spaceship.length; i++) {			
 			//Zeilenweise in String schreiben
@@ -148,7 +148,7 @@
 		//Kugeln einen Schritt weiter bewegen, dann rendern
 		currentSpaceshipBullets.forEach((bullet) => {
 			bullet.y -= 1;
-			if (renderStr[xyToStringPos(bullet.x, bullet.y - 1)] == '▨') {
+			if (renderStr[xyToStringPos(bullet.x, bullet.y - 1)] == '#') {
 				let currentId = 0;
 				for (let invaderPos = invaders[rowId].posX; invaderPos <= invaders[rowId].posX + 5*(invaderWidth*2+invaderWidth/2); invaderPos = invaderPos + invaderWidth*2+invaderWidth/2) {
 					if (bullet.x > invaderPos && bullet.x < invaderPos + invaderWidth*2) {
@@ -160,7 +160,7 @@
 				}
 				currentSpaceshipBullets = currentSpaceshipBullets.filter(currentBullet => currentBullet != bullet);
 			}
-			if (renderStr[xyToStringPos(bullet.x, bullet.y - 1)] == '◩') {
+			if (renderStr[xyToStringPos(bullet.x, bullet.y - 1)] == '=') {
 				currentSpaceshipBullets = currentSpaceshipBullets.filter(currentBullet => currentBullet != bullet);
 			}	
 			renderStr = Helper.setCharsAt(renderStr,xyToStringPos(bullet.x, bullet.y),"|"); 

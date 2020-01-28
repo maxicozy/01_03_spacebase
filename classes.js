@@ -42,8 +42,8 @@ class InvaderRow {
       for (let x = 0; x < width; x++) {
         let randomNumber = Math.random();
         if (randomNumber >= 0.5) {
-          currentInvader[y] = (Helper.setCharsAt(currentInvader[y], x,'▨'));
-          currentInvader[y] = (Helper.setCharsAt(currentInvader[y], 2 * width - x,'▨'));
+          currentInvader[y] = (Helper.setCharsAt(currentInvader[y], x,'#'));
+          currentInvader[y] = (Helper.setCharsAt(currentInvader[y], 2 * width - x,'#'));
         }
       }
     }
