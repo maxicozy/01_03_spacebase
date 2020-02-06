@@ -2,24 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SPACE INVADERS</title>
-  <style>
-  	pre {
-	  position: absolute;
-	  left: 50%;
-	  top: 50%;
-	  -webkit-transform: translate(-50%, -50%);
-	  transform: translate(-50%, -50%);
-	  border: 1px solid gray;
-	}
-
-	body {
-		color: white;
-		background-color: black;
-	}
-  </style>
+	<title>SPACE INVADERS</title>
+	<link href="style.css" rel="stylesheet"/>
+	<link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+	<p class="scoreboard" id="scoreboard">Scoreboard</p>
   <pre id="console">
   	<!-- Hier landet später der Output aus Javascript -->
   </pre>
@@ -44,25 +32,20 @@
 		let invaderDirection = 1;
 		let invaderRow = [];
 		let rowId = 0;
+		let killedInvaderCount = 0;
 
 	/*
 	 *	SPIELELOGIK
 	 */
 	
 	function newGame() {
-		// let invaderRowSegment = generateInvader(invaderWidth, invaderHeight);
-		// for (let i = 0; i < 5; i++) { {
-		// 		invaders[i] = {};
-		// 		invaders[i].Appearance = invaderRowSegment
-		// 	}
-		// }
+
 
 	if (rowId == 0) {
 		let newInvaderRow = new InvaderRow(startPosX, startPosY, invaderWidth, invaderHeight, InvaderRow.generateInvaderRow(invaderWidth, invaderHeight), rowId);
 		invaders.push(newInvaderRow);
 	}
 
-		console.log(invaders);
 		//TODO Punktestände
 		obstacles.push({x: Math.round(cols/2)-5, 
 						y: rows-10, 
@@ -151,9 +134,10 @@
 			if (renderStr[xyToStringPos(bullet.x, bullet.y - 1)] == '#') {
 				let currentId = 0;
 				for (let invaderPos = invaders[rowId].posX; invaderPos <= invaders[rowId].posX + 5*(invaderWidth*2+invaderWidth/2); invaderPos = invaderPos + invaderWidth*2+invaderWidth/2) {
-					if (bullet.x > invaderPos && bullet.x < invaderPos + invaderWidth*2) {
+					if (bullet.x > invaderPos && bullet.x < invaderPos + invaderWidth*2 + invaderWidth) {
 						invaders[rowId].invaders[currentId].ischBinKaputt = true;
 						invaders[rowId].invaders[currentId].explode();
+						killedInvaderCount++;
 						break;
 					}
 					currentId++;
@@ -171,12 +155,13 @@
 		currentSpaceshipBullets.push({x: spaceshipPos+3, y: rows-4});
 	}
 
-	function renderInvaderRow(posX, posY, invaders) {
+	function renderInvaderRow(invaders) {
+		let currentInvXPos = invaders[rowId].posX;
 		for (let j = 0; j < invaders[rowId].invaders.length; j++) {
 			for (let i = 0; i < invaders[rowId].invaders[j].appearance.length; i++) {
-				renderStr = Helper.setCharsAt(renderStr,xyToStringPos(invaders[rowId].invaders[j].id + posX, posY+i), invaders[rowId].invaders[j].appearance[i]);		
+				renderStr = Helper.setCharsAt(renderStr,xyToStringPos(invaders[rowId].invaders[j].id + currentInvXPos, invaders[rowId].posY+i), invaders[rowId].invaders[j].appearance[i]);		
 			}
-			posX =  posX + invaderWidth* 2 + invaderWidth/2;
+			currentInvXPos = currentInvXPos + invaderWidth* 2 + invaderWidth/2;
 		}
 	}
 
@@ -187,18 +172,21 @@
 			run = 0;
 			for (let i = rowId; i < invaders.length; i++) {
 				for (let j = 0; j < invaders[i].invaders.length; j++) {
-					if (invaders[i].invaders[j].ischBinKaputt == true) {
+					if (invaders[i].invaders[j].ischBinKaputt) {
+						invaders[i].invaders[j].explodeTime++;
+					}
+					if (invaders[i].invaders[j].explodeTime >= 2) {
 						invaders[i].invaders[j].appearance = [];
 					}
-				}
+				}	
 			}
 					if (invaders[rowId].posX == 0 ||invaders[rowId].posX  ==  Math.floor(cols*0.2 + invaderWidth*2 - 5)) {
-						invaders[rowId].posY++;
+						invaders[rowId].step("down");
 						invaderDirection = invaderDirection * (-1);
-						invaders[rowId].posX = invaders[rowId].posX + invaderDirection;
+						invaders[rowId].step(invaderDirection);
 					}
 				else {
-					invaders[rowId].posX = invaders[rowId].posX + invaderDirection;
+					invaders[rowId].step(invaderDirection);
 				}
 		}
 		//Render Background
@@ -207,10 +195,11 @@
 		renderObstacles();
 		renderSpaceship(spaceshipPos, rows-4, renderStr);
 		//Render Invaders
-		renderInvaderRow(invaders[rowId].posX, invaders[rowId].posY, invaders, renderStr);
+		renderInvaderRow(invaders, renderStr);
 		//Gesamtergebnis anzeigen
 		//Render Bullets
 		renderBullets(renderStr);
+		document.getElementById("scoreboard").innerText = "Scoreboard \n \n" + killedInvaderCount;
 		document.getElementById("console").innerText = renderStr;
 	}
 
