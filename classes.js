@@ -6,22 +6,19 @@ class Helper {
 }
 
 class Invader {
-  constructor(appearance, ischBinKaputt, id) {
+  constructor(appearance, ischBinKaputt, explodeTime, id) {
     this.appearance = appearance;
     this.id = id;
     this.ischBinKaputt = ischBinKaputt;
-  }
+    this.explodeTime = explodeTime;
+}
 
   shootLaser() {
     console.log("Invader " +this.id+" Laser shot")
   }
 
   explode() {
-    this.appearance = ["                ",
-                       "   \\   |   /    ", 
-                       " -  p u f f  -  ", 
-                       "   /   |   \\    ", 
-                       "                "];
+    this.appearance = ["                ", "   \\   |   /    ", " -  p u f f  -  ", "   /   |   \\    ",  "                "];
   }
 }
 
@@ -29,10 +26,22 @@ class InvaderRow {
   constructor(posX, posY, width, height, invaders, id) {
     this.id = id;
     this.posX = posX;
-    this.posY = posY; 
+    this.posY = posY;
     this.width = width;
     this.height = height;
     this.invaders = invaders;
+  }
+
+  step(direction) {
+    if (direction == 1) {
+      this.posX += 1;
+    }
+    if (direction == -1) {
+      this.posX -=1;
+    }
+    if (direction == "down") {
+      this.posY += 1;
+    }
   }
 
   static generateInvader(width, height) {
@@ -59,7 +68,7 @@ class InvaderRow {
     let invaderAppearance = InvaderRow.generateInvader(invaderWidth, invaderHeight);
     //let numInvaders = Math.floor(spacing);
 			for(let i = 0; i < numInvaders ; i++) { // gerundet(x = ((breite - breite*0,2) / invaderbreite) + (x - 1) * invaderbreite/2 ))
-        let newInv = new Invader(invaderAppearance, false, i);
+        let newInv = new Invader(invaderAppearance, false, 0, i);
         currentInvaders.push(newInv);
 			}
 		return currentInvaders;
